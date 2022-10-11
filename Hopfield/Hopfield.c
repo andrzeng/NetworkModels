@@ -95,7 +95,7 @@ void PrintWeights(struct HopfieldNet net)
 
 int main(int argc, char* argv[])
 {
-	struct HopfieldNet net = LoadHopfield("test.txt");
+	struct HopfieldNet net = LoadHopfield("net.txt");
 	
 	printf("Weights before training: \n");
 	PrintWeights(net);
