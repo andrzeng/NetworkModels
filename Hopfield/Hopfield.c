@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+
 
 struct  HopfieldNet{
 	int size; //Length of weight vector
@@ -79,6 +82,26 @@ void LearnPattern(struct HopfieldNet *net, char* filename, float lr)
 		}
 	}
 }
+char** ReconstructMemory(struct HopfieldNet net, char* filename)
+{
+	char** memory = malloc(sizeof(char*) * (int)sqrt(net.size));
+	for(int i = 0; i<(int)sqrt(net.size); ++i)
+	{
+		memory[i] = malloc(sizeof(char) * (int)sqrt(net.size));
+	}
+	
+	FILE* f = fopen(filename, "r");
+	int memorySize = 0;
+	fscanf(f, "%d", &memorySize);
+	
+	
+	fclose(f);
+	
+	/*
+	TODO
+	*/
+	
+}
 
 //Print weights of network
 void PrintWeights(struct HopfieldNet net)
@@ -95,7 +118,7 @@ void PrintWeights(struct HopfieldNet net)
 
 int main(int argc, char* argv[])
 {
-	struct HopfieldNet net = LoadHopfield("net.txt");
+	struct HopfieldNet net = LoadHopfield("test.txt");
 	
 	printf("Weights before training: \n");
 	PrintWeights(net);
