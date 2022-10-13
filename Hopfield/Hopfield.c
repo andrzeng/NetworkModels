@@ -5,7 +5,7 @@
 
 
 struct  HopfieldNet{
-	int size; //Length of weight vector
+	int size; //side length of the weight matrix; equals the total number of cells in each memory
 	float** weights; //A 2d array containing the network's weights
 };
 
@@ -82,20 +82,43 @@ void LearnPattern(struct HopfieldNet *net, char* filename, float lr)
 		}
 	}
 }
-char** ReconstructMemory(struct HopfieldNet net, char* filename)
+char** ReconstructMemory(struct HopfieldNet net, char* input_file, char* output_file)
 {
-	char** memory = malloc(sizeof(char*) * (int)sqrt(net.size));
+	
+	/*
+	char** partial_memory = malloc(sizeof(char*) * (int)sqrt(net.size));
 	for(int i = 0; i<(int)sqrt(net.size); ++i)
 	{
-		memory[i] = malloc(sizeof(char) * (int)sqrt(net.size));
+		partial_memory[i] = malloc(sizeof(char) * (int)sqrt(net.size));
 	}
+	*/
 	
-	FILE* f = fopen(filename, "r");
-	int memorySize = 0;
-	fscanf(f, "%d", &memorySize);
+	FILE* f = fopen(input_file, "r");
+	int patternSize = 0;
+	fscanf(f, "%d", &patternSize);
 	
+	int partial_memory[patternSize][patternSize];
 	
+	int state;
+	for(int i = 0; i<patternSize; ++i)
+	{
+		for(int x = 0; x<patternSize; ++x)
+		{
+			fscanf(f, "%d", &state);
+			partial_memory[i][x] = state;
+		}
+	}
 	fclose(f);
+	
+	int state_updates[patternSize][patternSize];
+	
+		
+	for(int epoch = 0; epoch < 1000; ++epoch)
+	{
+		//TODO	
+	}
+		
+	
 	
 	/*
 	TODO
