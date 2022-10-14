@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <assert.h>
-
 
 struct  HopfieldNet{
 	int size; //side length of the weight matrix; equals the total number of cells in each memory
@@ -82,16 +79,8 @@ void LearnPattern(struct HopfieldNet *net, char* filename, float lr)
 		}
 	}
 }
-char** ReconstructMemory(struct HopfieldNet net, char* input_file, char* output_file)
+void ReconstructMemory(struct HopfieldNet net, char* input_file, char* output_file)
 {
-	
-	/*
-	char** partial_memory = malloc(sizeof(char*) * (int)sqrt(net.size));
-	for(int i = 0; i<(int)sqrt(net.size); ++i)
-	{
-		partial_memory[i] = malloc(sizeof(char) * (int)sqrt(net.size));
-	}
-	*/
 	
 	FILE* f = fopen(input_file, "r");
 	int patternSize = 0;
@@ -110,20 +99,90 @@ char** ReconstructMemory(struct HopfieldNet net, char* input_file, char* output_
 	}
 	fclose(f);
 	
-	int state_updates[patternSize][patternSize];
+	float state_updates[patternSize][patternSize];
 	
-		
-	for(int epoch = 0; epoch < 1000; ++epoch)
+	
+	for(int i = 0; i<patternSize; ++i)
 	{
-		//TODO	
+		for(int x = 0; x<patternSize; ++x)
+		{
+			//printf("%d",partial_memory[i][x]);
+		}
+		//printf("\n");
 	}
+	
+	//printf("\n");
+	
+	
+	bool quit = false;
+	while(quit == false)
+	{
+		//Zero out array
+		for(int i = 0; i<patternSize; ++i)
+		{
+			for(int x = 0; x<patternSize; ++x)
+			{
+				state_updates[i][x] = 0;
+			}	
+		}
 		
+		//Loop through each memory cell and sum up the activations of the Hopfield network
+		for(int index = 0; index < patternSize*patternSize; ++index)
+		{
+			for(int index2 = 0; index2 < patternSize*patternSize; ++index2)
+			{
+				if(index != index2)
+				{
+					state_updates[index/patternSize][index%patternSize] += net.weights[index][index2] * partial_memory[index2/patternSize][index2%patternSize];
+				}
+			}
+		}
+		
+		//printf("State updates: \n");
+		for(int i = 0; i<patternSize; ++i)
+		{
+			for(int x = 0; x<patternSize; ++x)
+			{
+				//printf("%f  ",state_updates[i][x]);
+			}
+			//printf("\n");
+		}
+		
+		
+		//Update the partial memory
+		//If the partial memory is not updated, the memory is marked as RECONSTRUCTED and will be returned as-is
+		quit = true;
+		for(int i = 0; i<patternSize; ++i)
+		{
+			for(int x = 0; x<patternSize; ++x)
+			{
+				if(state_updates[i][x] >= 0)
+				{
+					if(partial_memory[i][x] == -1)
+						quit = false;
+					partial_memory[i][x] = 1;
+				}else{
+					if(partial_memory[i][x] == 1)
+						quit = false;
+					partial_memory[i][x] = -1;
+				}
+			}	
+		}
+		
+	}
 	
-	
-	/*
-	TODO
-	*/
-	
+	f = fopen(output_file, "w");
+	for(int i = 0; i<patternSize; ++i)
+	{
+		for(int x = 0; x<patternSize; ++x)
+		{
+			fprintf(f, "%d ", partial_memory[i][x]);
+			//printf("%d",partial_memory[i][x]);
+		}
+		fprintf(f,"\n");
+		//printf("\n");
+	}
+	fclose(f);
 }
 
 //Print weights of network
@@ -141,12 +200,15 @@ void PrintWeights(struct HopfieldNet net)
 
 int main(int argc, char* argv[])
 {
-	struct HopfieldNet net = LoadHopfield("test.txt");
-	
-	printf("Weights before training: \n");
-	PrintWeights(net);
+	struct HopfieldNet net = LoadHopfield("net.txt");
 	
 	LearnPattern(&net, "mem1.txt", 0.01);
-	printf("\nWeights after training: \n");
-	PrintWeights(net);
+	LearnPattern(&net, "mem2.txt", 0.01);
+	LearnPattern(&net, "mem3.txt", 0.01);
+	LearnPattern(&net, "mem4.txt", 0.01);
+	ReconstructMemory(net, "corruptmem1.txt", "reconstructed1.txt");
+	ReconstructMemory(net, "corruptmem2.txt", "reconstructed2.txt");
+	ReconstructMemory(net, "corruptmem3.txt", "reconstructed3.txt");
+	ReconstructMemory(net, "corruptmem4.txt", "reconstructed4.txt");
+	
 }
